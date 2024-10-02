@@ -2,7 +2,7 @@
 
 ## Общая информация
 
-Swagger документация:
+`Swagger UI` документация: https://petstore.swagger.io/?url=https://raw.githubusercontent.com/youngliqui/videohosting-api/refs/heads/feature/documentation/docs/swagger-doc.yaml
 
 Приложение представляет собой веб-сервис для работы с каналами видеохостинга. Он позволяет пользователям
 регистрироваться,
