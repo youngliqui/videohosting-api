@@ -1,0 +1,898 @@
+openapi: 3.0.3
+info:
+  title: Video hosting API
+  description:
+    API для работы с каналами видеохостинга. 
+    Приложение представляет собой веб-сервис для работы с каналами видеохостинга.
+    Он позволяет пользователям регистрироваться, входить в систему, управлять своими данными, получать информацию о существующих каналах, 
+    получать подробную информацию о конкретном канале, подписываться и отписываться от каналов.
+  contact:
+    name: "Petrov Pavel"
+    url: "https://github.com/youngliqui"
+  version: 1.0.0
+servers:
+  - url: http://localhost:8080
+tags:
+  - name: security
+    description: Операции с security
+  - name: users
+    description: Операции с пользователями
+  - name: channels
+    description: Операции с каналами
+paths:
+  /register:
+    post:
+      tags:
+        - security
+      summary: Регистрация нового пользователя
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                nickname:
+                  type: string
+                  example: user
+                password:
+                  type: string
+                  example: user
+                name:
+                  type: string
+                  example: Ivan Petrov
+                email:
+                  type: string
+                  format: email
+                  example: user@mail.com
+              required:
+                - nickname
+                - name
+                - password
+                - email
+      responses:
+        '201':
+          description: Пользователь успешно зарегистрирован
+        '400':
+          description: Неверный запрос, отсутствуют обязательные поля
+        '401':
+          description: Неверные учетные данные
+        '409':
+          description: Пользователь с таким никнеймом или email уже существует
+        '500':
+          description: Внутренняя ошибка сервера. Не удалось выполнить запрос
+
+  /login:
+    post:
+      tags:
+        - security
+      summary: Вход пользователя в систему и получение JWT токена.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                nickname:
+                  type: string
+                  example: user
+                password:
+                  type: string
+                  example: user
+              required:
+                - nickname
+                - password
+      responses:
+        '200':
+          description: Успешный вход и возвращение JWT токена
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+        '400':
+          description: Неверный запрос, отсутствуют обязательные поля
+        '401':
+          description: Неавторизованный доступ, неверные учетные данные
+        '403':
+          description: Учетная запись пользователя заблокирована или неактивна
+        '500':
+          description: Внутренняя ошибка сервера. Не удалось выполнить запроc
+
+  /users:
+    get:
+      tags:
+        - users
+      parameters:
+        - name: username
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 1
+        - name: size
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 15
+      summary: Получение всех пользователей с пагинацией и фильтрацией
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Список пользователей успешно получен
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserInfoDTO'
+        '400':
+          description: Неверный запрос. Параметры некорректны
+        '401':
+          description: Неавторизованный доступ
+        '403':
+          description: У пользователя нет прав доступа
+        '404':
+          description: Пользователи отсутствуют
+        '500':
+          description: Внутренняя ошибка сервера. Не удалось выполнить запрос
+
+  /users/{username}:
+    get:
+      tags:
+        - users
+      parameters:
+        - name: username
+          in: path
+          required: true
+          description: Имя пользователя
+          schema:
+            type: string
+      summary: Получение информации о пользователе
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Информация о пользователе успешно получена
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserInfoDTO'
+        '401':
+          description: Неавторизованный доступ
+        '403':
+          description: У пользователя нет прав доступа
+        '404':
+          description: Пользователь с указанным никнеймом не существует
+        '500':
+          description: Внутренняя ошибка сервера. Не удалось выполнить запрос
+
+    put:
+      tags:
+        - users
+      parameters:
+        - name: username
+          in: path
+          required: true
+          description: Имя пользователя
+          schema:
+            type: string
+      summary: Изменение информации о пользователе
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserUpdateDTO'
+      responses:
+        '200':
+          description: Данные пользователя успешно обновлены
+        '400':
+          description: Некорректно введенные данные
+        '401':
+          description: Неавторизованный доступ
+        '403':
+          description: У пользователя нет прав доступа
+        '404':
+          description: Пользователь с указанным никнеймом не найден
+        '409':
+          description: Пользователь с таким никнейном уже существует
+        '500':
+          description: Внутренняя ошибка сервера. Не удалось выполнить запрос
+
+  /users/{username}/nickname:
+    patch:
+      tags:
+        - users
+      parameters:
+        - name: username
+          in: path
+          required: true
+          description: Имя пользователя
+          schema:
+            type: string
+      summary: Изменение имени пользователя
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                nickname:
+                  type: string
+              required:
+                - nickname
+      responses:
+        '200':
+          description: Имя пользователя успешно изменено
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserInfoDTO'
+        '400':
+          description: Данные некорректны
+        '401':
+          description: Неавторизованный доступ
+        '403':
+          description: У пользователя нет прав доступа
+        '404':
+          description: Пользователь с таким никнеймом не найден
+        '409':
+          description: Пользователь с таким никнеймом уже существует
+        '500':
+          description: Внутренняя ошибка сервера. Не удалось выполнить запрос
+
+  /users/{username}/name:
+    patch:
+      tags:
+        - users
+      parameters:
+        - name: username
+          in: path
+          required: true
+          description: Имя пользователя
+          schema:
+            type: string
+      summary: Изменение ФИО пользователя
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                name:
+                  type: string
+              required:
+                - name
+      responses:
+        '200':
+          description: ФИО пользователя успешно изменено
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserInfoDTO'
+        '400':
+          description: Данные некорректны
+        '401':
+          description: Неавторизованный доступ
+        '403':
+          description: У пользователя нет прав доступа
+        '404':
+          description: Пользователь с таким никнейном не найден
+        '500':
+          description: Внутренняя ошибка сервера. Не удалось выполнить запрос
+
+  /users/{username}/password:
+    patch:
+      tags:
+        - users
+      parameters:
+        - name: username
+          in: path
+          required: true
+          description: Имя пользователя
+          schema:
+            type: string
+      summary: Изменение пароля пользователя
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                currentPassword:
+                  type: string
+                  example: current
+                newPassword:
+                  type: string
+                  example: new
+                confirmPassword:
+                  type: string
+                  example: confirm
+              required:
+                - currentPassword
+                - newPassword
+                - confirmPassword
+      responses:
+        '200':
+          description: Пароль пользователя успешно изменен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserInfoDTO'
+        '400':
+          description: Данные некорректны
+        '401':
+          description: Неавторизованный доступ
+        '403':
+          description: У пользователя нет прав доступа
+        '404':
+          description: Пользователь с таким никнейном не найден
+        '409':
+          description: Новый пароль и подтверждение не совпадают
+        '500':
+          description: Внутренняя ошибка сервера. Не удалось выполнить запрос
+
+  /users/{username}/email:
+    patch:
+      tags:
+        - users
+      parameters:
+        - name: username
+          in: path
+          required: true
+          description: Имя пользователя
+          schema:
+            type: string
+      summary: Изменение Эл.почты пользователя
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                email:
+                  type: string
+              required:
+                - email
+      responses:
+        '200':
+          description: Эл. почта пользователя изменена
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserInfoDTO'
+        '400':
+          description: Данные некорректны
+        '401':
+          description: Неавторизованный доступ
+        '403':
+          description: У пользователя нет прав доступа
+        '404':
+          description: Пользователь с таким никнеймом не найден
+        '500':
+          description: Внутренняя ошибка сервера. Не удалось выполнить запрос
+
+  /users/{username}/subscriptions:
+    get:
+      tags:
+        - users
+      parameters:
+        - name: username
+          in: path
+          required: true
+          description: Имя пользователя
+          schema:
+            type: string
+      summary: Получение списка подписок
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Список подписок получен успешно
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+                  example:
+                    channel_name1
+        '401':
+          description: Неавторизованный доступ
+        '403':
+          description: У пользователя недостаточно прав для выполнения этой операции
+        '404':
+          description: Пользователь не найден
+        '500':
+          description: Внутренняя ошибка сервера. Не удалось выполнить запрос
+
+  /channels:
+    get:
+      tags:
+        - channels
+      parameters:
+        - name: name
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: language
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: category
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 1
+        - name: size
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 15
+      summary: Получение всех каналов с пагинацией и фильтрацией
+      responses:
+        '200':
+          description: Список каналов успешно получен
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ChannelInfoDTO'
+        '400':
+          description: Неверный запрос. Параметры некорректны
+        '404':
+          description: Каналы не найдены
+        '500':
+          description: Внутренняя ошибка сервера. Не удалось выполнить запрос
+
+    post:
+      tags:
+        - channels
+      summary: Создание нового канала
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChannelCreateDTO'
+      responses:
+        '201':
+          description: Канал был успешно создан
+        '400':
+          description: Неверный запрос. Отстутствуют обязательные поля
+        '401':
+          description: Неавторизованный доступ
+        '409':
+          description: Канал с таким именем существует или пользователь уже имеет канал
+        '500':
+          description: Внутренняя ошибка сервера. Не удалось выполнить запрос
+
+  /channels/{channelName}:
+    get:
+      tags:
+        - channels
+      parameters:
+        - name: channelName
+          in: path
+          required: true
+          description: Название канала
+          schema:
+            type: string
+      summary: Получение информации о канале
+      responses:
+        '200':
+          description: Информация о канале успешно получена
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Channel'
+        '404':
+          description: Канал с таким именем не найден
+        '500':
+          description: Внутренняя ошибка сервера. Не удалось выполнить запрос
+
+    put:
+      tags:
+        - channels
+      parameters:
+        - name: channelName
+          in: path
+          required: true
+          description: Название канала
+          schema:
+            type: string
+      summary: Изменение информации о канале
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChannelUpdateDTO'
+      responses:
+        '200':
+          description: Информация о канале была изменена
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Channel'
+        '400':
+          description: Данные для обновления некорректны
+        '401':
+          description: Неавторизованный доступ
+        '403':
+          description: У пользователя нет прав доступа
+        '404':
+          description: Канал с таким именем не найден
+        '409':
+          description: Новое название канала уже занято
+        '500':
+          description: Внутренняя ошибка сервера. Не удалось выполнить запрос
+
+  /channels/{channelName}/description:
+    patch:
+      tags:
+        - channels
+      parameters:
+        - name: channelName
+          in: path
+          required: true
+          description: Название канала
+          schema:
+            type: string
+      summary: Изменение описания канала
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                name:
+                  type: string
+              required:
+                - name
+      responses:
+        '200':
+          description: Описание канала было успешно изменено
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Channel'
+        '400':
+          description: Данные для обновления некорректны
+        '401':
+          description: Неавторизованный доступ
+        '403':
+          description: У пользователя нет прав доступа
+        '404':
+          description: Канал с таким именем не найден
+        '500':
+          description: Внутренняя ошибка сервера. Не удалось выполнить запрос
+
+  /channels/{channelName}/avatar:
+    patch:
+      tags:
+        - channels
+      parameters:
+        - name: channelName
+          in: path
+          required: true
+          description: Название канала
+          schema:
+            type: string
+      summary: Изменение аватарки канала
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: Аватарка канала была изменена
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Channel'
+        '400':
+          description: Данные для обновления некорректны
+        '401':
+          description: Неавторизованный доступ
+        '403':
+          description: У пользователя нет прав доступа
+        '404':
+          description: Канал с таким именем не найден
+        '500':
+          description: Внутренняя ошибка сервера. Не удалось выполнить запрос
+
+  /channels/{channelName}/language:
+    patch:
+      tags:
+        - channels
+      parameters:
+        - name: channelName
+          in: path
+          required: true
+          description: Название канала
+          schema:
+            type: string
+      summary: Изменение языка канала
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                language:
+                  type: string
+              required:
+                - language
+      responses:
+        '200':
+          description: Язык канала был успешно изменен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Channel'
+        '400':
+          description: Данные для обновления некорректны
+        '401':
+          description: Неавторизованный доступ
+        '403':
+          description: У пользователя нет прав доступа
+        '404':
+          description: Канал с таким именем не найден
+        '500':
+          description: Внутренняя ошибка сервера. Не удалось выполнить запрос
+
+  /channels/{channelName}/subscribers:
+    post:
+      tags:
+        - channels
+      parameters:
+        - name: channelName
+          in: path
+          required: true
+          description: Название канала
+          schema:
+            type: string
+      summary: Подписка на канал
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Успешная подписка на канал
+        '401':
+          description: Неавторизованный доступ
+        '403':
+          description: Пользователь не может подписаться на этот канал
+        '404':
+          description: Канал с таким названием не найден
+        '409':
+          description: Пользователь уже подписан на этот канал
+        '500':
+          description: Внутренняя ошибка сервера. Не удалось выполнить запрос
+
+    delete:
+      tags:
+        - channels
+      parameters:
+        - name: channelName
+          in: path
+          required: true
+          description: Название канала
+          schema:
+            type: string
+      summary: Отписка от канала
+      security:
+        - bearerAuth: []
+      responses:
+        '204':
+          description: Успешная отписка от канала
+        '401':
+          description: Неавторизованный доступ
+        '403':
+          description: Пользователь не может отписаться от этого канала
+        '404':
+          description: Канал или пользователь не найдены
+        '409':
+          description: Пользователь не подписан на этот канал
+        '500':
+          description: Внутренняя ошибка сервера. Не удалось выполнить запрос
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    ChannelCreateDTO:
+      type: object
+      properties:
+        name:
+          type: string
+          example: Movies world
+        language:
+          type: string
+          example: Russian
+        avatar:
+          type: string
+          format: binary
+          example: bytes...
+        category:
+          type: string
+          example: Movies
+
+    ChannelUpdateDTO:
+      type: object
+      properties:
+        name:
+          type: string
+          example: new channel name
+        description:
+          type: string
+          example: new description
+        language:
+          type: string
+          example: new language
+        avatar:
+          type: string
+          format: binary
+          example: bytes...
+        category:
+          type: string
+          example: new category
+
+
+    ChannelInfoDTO:
+      type: object
+      properties:
+        name:
+          type: string
+          example: Channel name
+        subscribersCount:
+          type: integer
+          example: 20
+        language:
+          type: string
+          example: Russian
+        avatar:
+          type: string
+          format: binary
+        catagery:
+          type: string
+          example: Movies
+
+    Channel:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        name:
+          type: string
+          example: Channel name
+        description:
+          type: string
+          example: Chennel description
+        autor:
+          $ref: '#/components/schemas/UserInfoDTO'
+        subscribersCount:
+          type: integer
+          example: 20
+        language:
+          type: string
+          example: Russian
+        avatar:
+          type: string
+          format: binary
+        catagery:
+          type: string
+          example: Movies
+        createdAt:
+          type: string
+          format: date
+          example: 2024-10-01
+
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 5
+        nickname:
+          type: string
+          example: user nickname
+        password:
+          type: string
+          example: user password
+        name:
+          type: string
+          example: pavel
+        email:
+          type: string
+          format: email
+          example: user@mail.com
+
+    UserInfoDTO:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 3
+        nickname:
+          type: string
+          example: user nickname
+        name:
+          type: string
+          example: pavel
+        email:
+          type: string
+          format: email
+          example: user@mail.com
+
+    UserUpdateDTO:
+      type: object
+      properties:
+        nickname:
+          type: string
+          example: new nickname
+        password:
+          type: string
+          example: new password
+        name:
+          type: string
+          example: new name
+        email:
+          type: string
+          format: email
+          example: newuser@mail.com
