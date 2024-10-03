@@ -16,14 +16,15 @@
 
 ### User
 
-Сущность `User` представляет пользователя видеохостинга. Пользователь имеет никнейм, пароль, роль, имя, эл.почту, список
-каналов (подписок).
+Сущность `User` представляет пользователя видеохостинга. Пользователь имеет id, никнейм, пароль, роль, имя, эл.почту, список
+каналов (подписки).
 Может иметь роль `USER` или `ADMIN`.
 
 ```json
 {
   "id": 3,
-  "nickname": "user nickname",
+  "nickname": "user_nickname",
+  "password": "user_password",
   "role": "USER",
   "name": "pavel",
   "email": "user@mail.com",
@@ -36,7 +37,7 @@
         "id": 4,
         "nickname": "author",
         "role": "USER",
-        "name": "pavel",
+        "name": "Pavel Petrov",
         "email": "user@mail.com"
       },
       "subscribersCount": 20,
@@ -58,8 +59,11 @@
 - **password**: (string) Пароль пользователя.
     - Пример: `user_password`
 
+- **role**: (string) Роль пользователя. Enum: USER, ADMIN.
+    - Пример: `user_password`
+
 - **name**: (string) Полное имя пользователя.
-    - Пример: `Ivan Petrov`
+    - Пример: `Pavel Petrov`
 
 - **email**: (string, email) Эл. почта пользователя.
     - Пример: `user@mail.com`
@@ -88,7 +92,7 @@
   },
   "subscribersCount": 20,
   "language": "Russian",
-  "avatar": "string",
+  "avatar": "bytes...",
   "category": "Movies",
   "createdAt": "2024-10-01"
 }
@@ -99,9 +103,18 @@
 
 - **name**: (string) Название канала.
     - Пример: `Channel Name`
-
-- **role**: (string) Роль пользователя.
-    - Пример: `USER`
+  
+- **author**: (object) Пользователь, который создал канал.
+  - Пример:
+```json
+{
+    "id": 3,
+    "nickname": "user nickname",
+    "role": "USER",
+    "name": "pavel",
+    "email": "user@mail.com"
+  }
+```
 
 - **description**: (string) Описание канала.
     - Пример: `Description of the channel`
@@ -207,7 +220,8 @@
 
 Доступ к данному запросу имеет только `ADMIN`.
 
-Параметры: `username`, `page`, `size`
+Параметры: `username`, `page`, `size`.
+Все параметры являются `необязательными`.
 
 **URL:** `/users`
 **Метод:** `GET`
@@ -457,7 +471,7 @@
 - **200**: Список подписок получен успешно:
 ```json
 [
-  "channel_name1"
+  "channel_name1", "channel_name2"
 ]
 ```
 - **401**: Неавторизованный доступ
@@ -548,7 +562,7 @@
   },
   "subscribersCount": 20,
   "language": "Russian",
-  "avatar": "string",
+  "avatar": "bytes...",
   "category": "Movies",
   "createdAt": "2024-10-01"
 }
@@ -596,7 +610,7 @@
   },
   "subscribersCount": 20,
   "language": "Russian",
-  "avatar": "string",
+  "avatar": "bytes...",
   "category": "Movies",
   "createdAt": "2024-10-01"
 }
@@ -622,7 +636,7 @@
 
 ```json
 {
-  "name": "string"
+  "description": "new description"
 }
 ```
 
@@ -708,7 +722,7 @@
 
 ```json
 {
-  "language": "string"
+  "language": "new_language"
 }
 ```
 
@@ -729,7 +743,7 @@
   },
   "subscribersCount": 20,
   "language": "Russian",
-  "avatar": "string",
+  "avatar": "bytes...",
   "category": "Movies",
   "createdAt": "2024-10-01"
 }
