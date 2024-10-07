@@ -1,3 +1,13 @@
 spring:
   application:
     name: videohosting-api
+  datasource:
+    url: jdbc:postgresql://localhost:5444/videohosting-db
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+  liquibase:
+    change-log: db/changelog/db.changelog-master.yml
+  jpa:
+    properties:
+      hibernate.hibernate.dialect: org.hibernate.dialect.PostgreSQLDialect
