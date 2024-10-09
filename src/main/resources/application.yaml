@@ -2,7 +2,7 @@ spring:
   application:
     name: videohosting-api
   datasource:
-    url: jdbc:postgresql://localhost:5444/videohosting-db
+    url: jdbc:postgresql://localhost:5444/videohosting_db
     username: postgres
     password: postgres
     driver-class-name: org.postgresql.Driver
@@ -11,3 +11,10 @@ spring:
   jpa:
     properties:
       hibernate.hibernate.dialect: org.hibernate.dialect.PostgreSQLDialect
+
+security:
+  jwt:
+    secret-key:
+      G4FEVk7763crEaNKV0GynmfugR3Gc1c6DumD15Sfi1AqX3WLRz0uGpEK28ZtDnhc
+    expiration-time:
+      100000
