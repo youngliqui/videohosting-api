@@ -1,5 +1,6 @@
 package ru.clevertec.videohosting_api.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
@@ -12,10 +13,11 @@ import java.util.List;
 import java.util.Set;
 
 @Builder
-@Getter
-@Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Data
+@ToString(exclude = "subscriptions")
+@EqualsAndHashCode(exclude = "subscriptions")
 @Entity
 @Table(name = "users")
 public class User implements UserDetails {
@@ -47,6 +49,7 @@ public class User implements UserDetails {
     )
     private Set<Channel> subscriptions;
 
+    @JsonIgnore
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority(role.name()));

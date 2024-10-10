@@ -1,59 +1,62 @@
 plugins {
-	id 'java'
-	id 'org.springframework.boot' version '3.3.4'
-	id 'io.spring.dependency-management' version '1.1.6'
-	id 'org.liquibase.gradle' version '2.2.0'
+    id 'java'
+    id 'org.springframework.boot' version '3.3.4'
+    id 'io.spring.dependency-management' version '1.1.6'
+    id 'org.liquibase.gradle' version '2.2.0'
 }
 
 group = 'ru.clevertec'
 version = '0.0.1-SNAPSHOT'
 
 java {
-	toolchain {
-		languageVersion = JavaLanguageVersion.of(17)
-	}
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
 }
 
 configurations {
-	compileOnly {
-		extendsFrom annotationProcessor
-	}
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
 }
 
 repositories {
-	mavenCentral()
+    mavenCentral()
 }
 
 dependencies {
-	// Spring
-	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-	implementation 'org.springframework.boot:spring-boot-starter-security'
-	implementation 'org.springframework.boot:spring-boot-starter-web'
-	implementation 'org.springframework.boot:spring-boot-starter-validation'
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-	testImplementation 'org.springframework.security:spring-security-test'
+    // Spring
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.security:spring-security-test'
 
-	// JWT
-	implementation 'io.jsonwebtoken:jjwt:0.12.6'
+    // JSON
+    implementation 'com.github.java-json-tools:json-patch:1.13'
 
-	// Lombok
-	compileOnly 'org.projectlombok:lombok'
-	annotationProcessor 'org.projectlombok:lombok'
-	implementation 'org.projectlombok:lombok-mapstruct-binding:0.2.0'
+    // JWT
+    implementation 'io.jsonwebtoken:jjwt:0.12.6'
 
-	// MapStruct
-	implementation 'org.mapstruct:mapstruct:1.6.2'
-	annotationProcessor 'org.mapstruct:mapstruct-processor:1.6.2'
+    // Lombok
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+    implementation 'org.projectlombok:lombok-mapstruct-binding:0.2.0'
 
-	// Liquibase
-	implementation 'org.liquibase:liquibase-core'
+    // MapStruct
+    implementation 'org.mapstruct:mapstruct:1.6.2'
+    annotationProcessor 'org.mapstruct:mapstruct-processor:1.6.2'
 
-	// Postgresql
-	runtimeOnly 'org.postgresql:postgresql'
+    // Liquibase
+    implementation 'org.liquibase:liquibase-core'
 
-	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    // Postgresql
+    runtimeOnly 'org.postgresql:postgresql'
+
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
 tasks.named('test') {
-	useJUnitPlatform()
+    useJUnitPlatform()
 }

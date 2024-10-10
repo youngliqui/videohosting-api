@@ -12,6 +12,8 @@ import ru.clevertec.videohosting_api.dto.SignUpRequest;
 import ru.clevertec.videohosting_api.model.User;
 import ru.clevertec.videohosting_api.security.Role;
 
+import java.util.LinkedHashSet;
+
 @Service
 public class AuthenticationService {
     private final UserService userService;
@@ -32,19 +34,19 @@ public class AuthenticationService {
         this.authenticationManager = authenticationManager;
     }
 
-    public JwtAuthenticationResponse signUp(SignUpRequest request) {
+    public User signUp(SignUpRequest request) {
         User user = User.builder()
                 .nickname(request.getNickname())
                 .email(request.getEmail())
                 .name(request.getName())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .role(Role.USER)
+                .subscriptions(new LinkedHashSet<>())
                 .build();
 
         userService.create(user);
 
-        String jwt = jwtService.generateToken(user);
-        return new JwtAuthenticationResponse(jwt);
+        return user;
     }
 
     public JwtAuthenticationResponse signIn(SignInRequest request) {
