@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.github.fge.jsonpatch.JsonPatch;
 import com.github.fge.jsonpatch.JsonPatchException;
 import jakarta.validation.Valid;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -15,16 +14,15 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import ru.clevertec.videohosting_api.dto.ChangePasswordDTO;
-import ru.clevertec.videohosting_api.dto.UserInfoDTO;
-import ru.clevertec.videohosting_api.dto.UserSubscriptionDTO;
-import ru.clevertec.videohosting_api.dto.UserUpdateDTO;
+import ru.clevertec.videohosting_api.dto.user.UserInfoDTO;
+import ru.clevertec.videohosting_api.dto.user.UserSubscriptionDTO;
+import ru.clevertec.videohosting_api.dto.user.UserUpdateDTO;
 import ru.clevertec.videohosting_api.exception.CustomValidationException;
 import ru.clevertec.videohosting_api.model.User;
 import ru.clevertec.videohosting_api.service.UserService;
 
 import java.util.List;
 
-@Slf4j
 @RestController
 @RequestMapping("/users")
 public class UserController {
@@ -66,7 +64,7 @@ public class UserController {
         return ResponseEntity.ok(userInfo);
     }
 
-    @PatchMapping(path = "/{userId}")//, consumes = "application/json-patch+json")
+    @PatchMapping(path = "/{userId}")
     @PreAuthorize("#userId == authentication.principal.id or hasAnyAuthority('ADMIN')")
     public ResponseEntity<User> updateUser(@PathVariable Long userId,
                                            @RequestBody JsonPatch patch) {

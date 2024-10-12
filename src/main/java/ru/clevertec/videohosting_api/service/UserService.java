@@ -7,9 +7,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import ru.clevertec.videohosting_api.dto.ChangePasswordDTO;
-import ru.clevertec.videohosting_api.dto.UserInfoDTO;
-import ru.clevertec.videohosting_api.dto.UserSubscriptionDTO;
-import ru.clevertec.videohosting_api.dto.UserUpdateDTO;
+import ru.clevertec.videohosting_api.dto.user.UserInfoDTO;
+import ru.clevertec.videohosting_api.dto.user.UserSubscriptionDTO;
+import ru.clevertec.videohosting_api.dto.user.UserUpdateDTO;
 import ru.clevertec.videohosting_api.exception.UserNotFoundException;
 import ru.clevertec.videohosting_api.model.User;
 

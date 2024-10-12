@@ -1,19 +1,21 @@
 package ru.clevertec.videohosting_api.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.util.Date;
 import java.util.Set;
 
+@Builder
 @Data
 @ToString(exclude = {"subscribers", "author"})
 @EqualsAndHashCode(exclude = {"subscribers", "author"})
 @Entity
 @Table(name = "channels")
+@NoArgsConstructor
+@AllArgsConstructor
 public class Channel {
     @Id
     @SequenceGenerator(name = "channelsIdSeqGen", sequenceName = "channels_id_seq", allocationSize = 1)
@@ -41,9 +43,9 @@ public class Channel {
     @Column(nullable = false)
     private String language;
 
-    @Lob
-    private byte[] avatar;
+    private String avatar;
 
-    @Enumerated(EnumType.STRING)
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "category_id")
     private Category category;
 }

@@ -1,7 +1,7 @@
 --liquibase formatted sql
 
 --changeset youngliqui:1
---comment users and channels created
+--comment create entity
 CREATE SEQUENCE users_id_seq
     START WITH 1
     INCREMENT BY 1;
@@ -16,6 +16,16 @@ CREATE TABLE users
     role     VARCHAR(50)         NOT NULL
 );
 
+CREATE SEQUENCE categories_id_seq
+    START WITH 1
+    INCREMENT BY 1;
+
+CREATE TABLE categories
+(
+    id   BIGINT PRIMARY KEY DEFAULT nextval('categories_id_seq'),
+    name VARCHAR(255) UNIQUE NOT NULL
+);
+
 CREATE SEQUENCE channels_id_seq
     START WITH 1
     INCREMENT BY 1;
@@ -28,9 +38,10 @@ CREATE TABLE channels
     author_id     BIGINT UNIQUE       NOT NULL,
     creation_date DATE,
     language      VARCHAR(50)         NOT NULL,
-    avatar        BYTEA,
-    category      VARCHAR(50),
-    FOREIGN KEY (author_id) REFERENCES users (id) ON DELETE CASCADE
+    avatar        text,
+    category_id   BIGINT UNIQUE,
+    FOREIGN KEY (author_id) REFERENCES users (id) ON DELETE CASCADE,
+    FOREIGN KEY (category_id) REFERENCES categories (id)
 );
 
 CREATE TABLE user_subscriptions
@@ -40,4 +51,4 @@ CREATE TABLE user_subscriptions
     PRIMARY KEY (user_id, channel_id),
     FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
     FOREIGN KEY (channel_id) REFERENCES channels (id) ON DELETE CASCADE
-)
+);

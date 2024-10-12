@@ -1,4 +1,4 @@
-package ru.clevertec.videohosting_api.dto;
+package ru.clevertec.videohosting_api.dto.user;
 
 import lombok.Builder;
 import lombok.Data;
