@@ -5,7 +5,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.clevertec.videohosting_api.dto.user.UserInfoDTO;
-import ru.clevertec.videohosting_api.exception.UserNotFoundException;
+import ru.clevertec.videohosting_api.exception.user.UserNotFoundException;
 import ru.clevertec.videohosting_api.mapper.UserMapper;
 import ru.clevertec.videohosting_api.model.User;
 import ru.clevertec.videohosting_api.repository.UserRepository;

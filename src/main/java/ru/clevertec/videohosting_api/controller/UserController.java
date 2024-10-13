@@ -17,7 +17,7 @@ import ru.clevertec.videohosting_api.dto.ChangePasswordDTO;
 import ru.clevertec.videohosting_api.dto.user.UserInfoDTO;
 import ru.clevertec.videohosting_api.dto.user.UserSubscriptionDTO;
 import ru.clevertec.videohosting_api.dto.user.UserUpdateDTO;
-import ru.clevertec.videohosting_api.exception.CustomValidationException;
+import ru.clevertec.videohosting_api.exception.validation.CustomValidationException;
 import ru.clevertec.videohosting_api.model.User;
 import ru.clevertec.videohosting_api.service.user.authentication.UserAuthenticationService;
 import ru.clevertec.videohosting_api.service.user.information.UserInformationService;

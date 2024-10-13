@@ -8,9 +8,9 @@ import com.github.fge.jsonpatch.JsonPatchException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.clevertec.videohosting_api.dto.user.UserUpdateDTO;
-import ru.clevertec.videohosting_api.exception.EmailAlreadyExistsException;
-import ru.clevertec.videohosting_api.exception.UserNotFoundException;
-import ru.clevertec.videohosting_api.exception.UsernameAlreadyExistsException;
+import ru.clevertec.videohosting_api.exception.user.EmailAlreadyExistsException;
+import ru.clevertec.videohosting_api.exception.user.UserNotFoundException;
+import ru.clevertec.videohosting_api.exception.user.UsernameAlreadyExistsException;
 import ru.clevertec.videohosting_api.model.User;
 import ru.clevertec.videohosting_api.repository.UserRepository;
 

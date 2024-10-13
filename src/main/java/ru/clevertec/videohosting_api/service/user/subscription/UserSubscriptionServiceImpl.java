@@ -3,7 +3,7 @@ package ru.clevertec.videohosting_api.service.user.subscription;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.clevertec.videohosting_api.dto.user.UserSubscriptionDTO;
-import ru.clevertec.videohosting_api.exception.UserNotFoundException;
+import ru.clevertec.videohosting_api.exception.user.UserNotFoundException;
 import ru.clevertec.videohosting_api.model.User;
 import ru.clevertec.videohosting_api.repository.UserRepository;
 

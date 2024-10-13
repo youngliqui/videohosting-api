@@ -2,8 +2,7 @@ package ru.clevertec.videohosting_api.service.avatar;
 
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import ru.clevertec.videohosting_api.exception.AvatarEncodeException;
-import ru.clevertec.videohosting_api.service.avatar.AvatarService;
+import ru.clevertec.videohosting_api.exception.avatar.AvatarEncodeException;
 
 import java.io.IOException;
 import java.util.Base64;

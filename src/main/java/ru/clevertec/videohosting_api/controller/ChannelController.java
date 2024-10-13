@@ -16,7 +16,7 @@ import ru.clevertec.videohosting_api.dto.channel.ChannelCreateDTO;
 import ru.clevertec.videohosting_api.dto.channel.ChannelExtendedInfoDTO;
 import ru.clevertec.videohosting_api.dto.channel.ChannelInfoDTO;
 import ru.clevertec.videohosting_api.dto.channel.ChannelUpdateDTO;
-import ru.clevertec.videohosting_api.exception.CustomValidationException;
+import ru.clevertec.videohosting_api.exception.validation.CustomValidationException;
 import ru.clevertec.videohosting_api.model.User;
 import ru.clevertec.videohosting_api.service.channel.information.ChannelInformationService;
 import ru.clevertec.videohosting_api.service.channel.management.ChannelManagementService;

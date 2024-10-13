@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import ru.clevertec.videohosting_api.dto.JwtAuthenticationResponse;
 import ru.clevertec.videohosting_api.dto.SignInRequest;
 import ru.clevertec.videohosting_api.dto.SignUpRequest;
-import ru.clevertec.videohosting_api.exception.CustomValidationException;
+import ru.clevertec.videohosting_api.exception.validation.CustomValidationException;
 import ru.clevertec.videohosting_api.model.User;
 import ru.clevertec.videohosting_api.service.security.AuthenticationService;
 

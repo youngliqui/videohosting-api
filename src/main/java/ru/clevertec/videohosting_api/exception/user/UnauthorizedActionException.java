@@ -1,4 +1,4 @@
-package ru.clevertec.videohosting_api.exception;
+package ru.clevertec.videohosting_api.exception.user;
 
 public class UnauthorizedActionException extends RuntimeException {
     public UnauthorizedActionException(String message) {

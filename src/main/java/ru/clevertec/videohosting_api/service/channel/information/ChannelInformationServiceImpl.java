@@ -8,7 +8,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import ru.clevertec.videohosting_api.dto.channel.ChannelExtendedInfoDTO;
 import ru.clevertec.videohosting_api.dto.channel.ChannelInfoDTO;
-import ru.clevertec.videohosting_api.exception.ChannelNotFoundException;
+import ru.clevertec.videohosting_api.exception.channel.ChannelNotFoundException;
 import ru.clevertec.videohosting_api.mapper.ChannelMapper;
 import ru.clevertec.videohosting_api.model.Channel;
 import ru.clevertec.videohosting_api.model.ChannelSpecification;

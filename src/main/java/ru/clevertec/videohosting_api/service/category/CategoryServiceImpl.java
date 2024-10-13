@@ -2,10 +2,9 @@ package ru.clevertec.videohosting_api.service.category;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.clevertec.videohosting_api.exception.CategoryNotFoundException;
+import ru.clevertec.videohosting_api.exception.category.CategoryNotFoundException;
 import ru.clevertec.videohosting_api.model.Category;
 import ru.clevertec.videohosting_api.repository.CategoryRepository;
-import ru.clevertec.videohosting_api.service.category.CategoryService;
 
 @Service
 public class CategoryServiceImpl implements CategoryService {
