@@ -15,12 +15,11 @@ import org.springframework.web.multipart.MultipartFile;
 import ru.clevertec.videohosting_api.dto.channel.ChannelCreateDTO;
 import ru.clevertec.videohosting_api.dto.channel.ChannelExtendedInfoDTO;
 import ru.clevertec.videohosting_api.dto.channel.ChannelInfoDTO;
+import ru.clevertec.videohosting_api.dto.channel.ChannelUpdateDTO;
 import ru.clevertec.videohosting_api.exception.CustomValidationException;
 import ru.clevertec.videohosting_api.model.User;
 import ru.clevertec.videohosting_api.service.ChannelService;
 import ru.clevertec.videohosting_api.service.UserService;
-
-import java.io.IOException;
 
 @RestController
 @RequestMapping("/channels")
@@ -55,7 +54,7 @@ public class ChannelController {
     public ResponseEntity<ChannelExtendedInfoDTO> createChannel(
             @RequestBody @Valid ChannelCreateDTO channelCreateDTO,
             BindingResult bindingResult
-    ) throws IOException {
+    ) {
         if (bindingResult.hasErrors()) {
             throw new CustomValidationException(bindingResult.getAllErrors().toString());
         }
@@ -84,22 +83,17 @@ public class ChannelController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
-        try {
-            ChannelExtendedInfoDTO updatedChannel = channelService.changeAvatar(channelId, avatar);
-            return ResponseEntity.ok(updatedChannel);
-
-        } catch (IOException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+        ChannelExtendedInfoDTO updatedChannel = channelService.changeAvatar(channelId, avatar);
+        return ResponseEntity.ok(updatedChannel);
     }
 
     @PatchMapping("/{channelId}")
     public ResponseEntity<ChannelExtendedInfoDTO> updateChannel(@PathVariable("channelId") Long channelId,
                                                                 @RequestBody JsonPatch patch) {
-
         if (channelService.canUserChange(channelId, userService.getCurrentUser())) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
+
         try {
             ChannelExtendedInfoDTO updatedChannel = channelService.applyPatchToChannel(channelId, patch);
             return ResponseEntity.ok(updatedChannel);
@@ -107,5 +101,47 @@ public class ChannelController {
         } catch (JsonPatchException | JsonProcessingException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
+    }
+
+    @PutMapping(value = "/{channelId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<ChannelExtendedInfoDTO> updateChannel(
+            @PathVariable("channelId") Long channelId,
+            @RequestPart(value = "name", required = false) String name,
+            @RequestPart(value = "description", required = false) String description,
+            @RequestPart(value = "language", required = false) String language,
+            @RequestPart(value = "categoryName", required = false) String categoryName,
+            @RequestPart(value = "avatar", required = false) MultipartFile avatar
+    ) {
+        if (channelService.canUserChange(channelId, userService.getCurrentUser())) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
+        ChannelUpdateDTO channelUpdateDTO = ChannelUpdateDTO.builder()
+                .name(name)
+                .description(description)
+                .language(language)
+                .categoryName(categoryName)
+                .avatar(avatar)
+                .build();
+
+        ChannelExtendedInfoDTO channel = channelService.updateChannel(channelId, channelUpdateDTO);
+
+        return ResponseEntity.ok(channel);
+    }
+
+    @PostMapping("/{channelId}/subscribers/{userId}")
+    public ResponseEntity<Void> subscribeToChannel(@PathVariable("channelId") Long channelId,
+                                                   @PathVariable("userId") Long userId) {
+        channelService.subscribeToChannel(channelId, userId);
+
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/{channelId}/subscribers/{userId}")
+    public ResponseEntity<Void> unsubscribeFromChannel(@PathVariable("channelId") Long channelId,
+                                                       @PathVariable("userId") Long userId) {
+        channelService.unsubscribeFromChannel(channelId, userId);
+
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }

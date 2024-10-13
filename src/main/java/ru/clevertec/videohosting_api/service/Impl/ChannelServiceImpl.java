@@ -16,20 +16,26 @@ import org.springframework.web.multipart.MultipartFile;
 import ru.clevertec.videohosting_api.dto.channel.ChannelCreateDTO;
 import ru.clevertec.videohosting_api.dto.channel.ChannelExtendedInfoDTO;
 import ru.clevertec.videohosting_api.dto.channel.ChannelInfoDTO;
+import ru.clevertec.videohosting_api.dto.channel.ChannelUpdateDTO;
 import ru.clevertec.videohosting_api.exception.ChannelAlreadyExistsException;
 import ru.clevertec.videohosting_api.exception.ChannelNotFoundException;
+import ru.clevertec.videohosting_api.exception.SubscribedAlreadyException;
+import ru.clevertec.videohosting_api.exception.UnauthorizedActionException;
 import ru.clevertec.videohosting_api.mapper.ChannelMapper;
 import ru.clevertec.videohosting_api.model.Category;
 import ru.clevertec.videohosting_api.model.Channel;
 import ru.clevertec.videohosting_api.model.ChannelSpecification;
 import ru.clevertec.videohosting_api.model.User;
 import ru.clevertec.videohosting_api.repository.ChannelRepository;
+import ru.clevertec.videohosting_api.service.AvatarService;
 import ru.clevertec.videohosting_api.service.CategoryService;
 import ru.clevertec.videohosting_api.service.ChannelService;
+import ru.clevertec.videohosting_api.service.UserService;
+import ru.clevertec.videohosting_api.updater.channel.*;
 
-import java.io.IOException;
-import java.util.Base64;
+import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 
 @Service
 public class ChannelServiceImpl implements ChannelService {
@@ -37,17 +43,24 @@ public class ChannelServiceImpl implements ChannelService {
     private final ChannelMapper channelMapper;
     private final CategoryService categoryService;
     private final ObjectMapper objectMapper;
+    private final AvatarService avatarService;
+    private final UserService userService;
 
     @Autowired
     public ChannelServiceImpl(
             ChannelRepository channelRepository,
             ChannelMapper channelMapper,
-            CategoryService categoryService, ObjectMapper objectMapper
+            CategoryService categoryService,
+            ObjectMapper objectMapper,
+            AvatarService avatarService,
+            UserService userService
     ) {
         this.channelRepository = channelRepository;
         this.channelMapper = channelMapper;
         this.categoryService = categoryService;
         this.objectMapper = objectMapper;
+        this.avatarService = avatarService;
+        this.userService = userService;
     }
 
     @Override
@@ -82,12 +95,12 @@ public class ChannelServiceImpl implements ChannelService {
     }
 
     @Override
-    public ChannelExtendedInfoDTO changeAvatar(Long channelId, MultipartFile avatar) throws IOException {
+    public ChannelExtendedInfoDTO changeAvatar(Long channelId, MultipartFile avatar) {
         Channel channel = channelRepository.findById(channelId)
                 .orElseThrow(() ->
                         new ChannelNotFoundException("Channel with id = " + channelId + " was not found"));
 
-        channel.setAvatar(encodeAvatar(avatar));
+        channel.setAvatar(avatarService.encodeAvatar(avatar));
         return channelMapper.channelToChannelExtendedInfoDTO(channelRepository.save(channel));
     }
 
@@ -124,8 +137,66 @@ public class ChannelServiceImpl implements ChannelService {
         return channelMapper.channelToChannelExtendedInfoDTO(channelRepository.save(patchedChannel));
     }
 
-    private String encodeAvatar(MultipartFile multipartFile) throws IOException {
-        byte[] avatarBytes = multipartFile.getBytes();
-        return Base64.getEncoder().encodeToString(avatarBytes);
+    @Override
+    public ChannelExtendedInfoDTO updateChannel(Long channelId, ChannelUpdateDTO channelUpdateDTO) {
+        Channel channel = channelRepository.findById(channelId)
+                .orElseThrow(() ->
+                        new ChannelNotFoundException("Channel with id = " + channelId + " was not found"));
+
+        List<ChannelUpdater> updaters = Arrays.asList(
+                new NameChannelUpdater(),
+                new DescriptionChannelUpdater(),
+                new LanguageChannelUpdater(),
+                new AvatarChannelUpdater(avatarService),
+                new CategoryChannelUpdater(categoryService)
+        );
+        updaters.forEach(updater -> updater.update(channel, channelUpdateDTO));
+
+        return channelMapper.channelToChannelExtendedInfoDTO(channelRepository.save(channel));
+    }
+
+    @Override
+    @Transactional
+    public void subscribeToChannel(Long channelId, Long userId) {
+        User currentUser = userService.getCurrentUser();
+
+        if (!currentUser.getId().equals(userId)) {
+            throw new UnauthorizedActionException("User is not authorized to subscribe to this channel");
+        }
+
+        Channel channel = channelRepository.findById(channelId)
+                .orElseThrow(() ->
+                        new ChannelNotFoundException("Channel with id = " + channelId + " was not found"));
+
+        if (channel.getSubscribers().contains(currentUser)) {
+            throw new SubscribedAlreadyException("User is already subscribed to this channel");
+        }
+
+        channel.getSubscribers().add(currentUser);
+        currentUser.getSubscriptions().add(channel);
+
+        channelRepository.save(channel);
+    }
+
+    @Override
+    public void unsubscribeFromChannel(Long channelId, Long userId) {
+        User currentUser = userService.getCurrentUser();
+
+        if (!currentUser.getId().equals(userId)) {
+            throw new UnauthorizedActionException("User is not authorized to subscribe to this channel");
+        }
+
+        Channel channel = channelRepository.findById(channelId)
+                .orElseThrow(() ->
+                        new ChannelNotFoundException("Channel with id = " + channelId + " was not found"));
+
+        if (!channel.getSubscribers().contains(currentUser)) {
+            throw new SubscribedAlreadyException("The user has not subscribed to this channel yet");
+        }
+
+        channel.getSubscribers().remove(currentUser);
+        currentUser.getSubscriptions().remove(channel);
+
+        channelRepository.save(channel);
     }
 }

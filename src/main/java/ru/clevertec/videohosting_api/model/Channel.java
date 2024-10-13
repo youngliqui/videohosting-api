@@ -32,7 +32,7 @@ public class Channel {
     @JoinColumn(name = "author_id", nullable = false, unique = true)
     private User author;
 
-    @ManyToMany(mappedBy = "subscriptions", fetch = FetchType.LAZY)
+    @ManyToMany(mappedBy = "subscriptions", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     private Set<User> subscribers;
 
     @CreationTimestamp
