@@ -4,7 +4,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import ru.clevertec.videohosting_api.dto.ChangePasswordDTO;
+import ru.clevertec.videohosting_api.dto.security.ChangePasswordDTO;
 import ru.clevertec.videohosting_api.exception.user.IncorrectPasswordException;
 import ru.clevertec.videohosting_api.exception.user.PasswordMismatchException;
 import ru.clevertec.videohosting_api.exception.user.UserNotFoundException;

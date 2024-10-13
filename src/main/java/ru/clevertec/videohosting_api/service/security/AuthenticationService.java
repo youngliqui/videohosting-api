@@ -6,11 +6,11 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import ru.clevertec.videohosting_api.dto.JwtAuthenticationResponse;
-import ru.clevertec.videohosting_api.dto.SignInRequest;
-import ru.clevertec.videohosting_api.dto.SignUpRequest;
+import ru.clevertec.videohosting_api.dto.security.JwtAuthenticationResponse;
+import ru.clevertec.videohosting_api.dto.security.SignInRequest;
+import ru.clevertec.videohosting_api.dto.security.SignUpRequest;
 import ru.clevertec.videohosting_api.model.User;
-import ru.clevertec.videohosting_api.security.Role;
+import ru.clevertec.videohosting_api.model.security.Role;
 import ru.clevertec.videohosting_api.service.user.authentication.UserAuthenticationService;
 import ru.clevertec.videohosting_api.service.user.management.UserManagementService;
 

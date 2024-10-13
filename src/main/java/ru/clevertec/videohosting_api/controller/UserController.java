@@ -13,7 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-import ru.clevertec.videohosting_api.dto.ChangePasswordDTO;
+import ru.clevertec.videohosting_api.dto.security.ChangePasswordDTO;
 import ru.clevertec.videohosting_api.dto.user.UserInfoDTO;
 import ru.clevertec.videohosting_api.dto.user.UserSubscriptionDTO;
 import ru.clevertec.videohosting_api.dto.user.UserUpdateDTO;

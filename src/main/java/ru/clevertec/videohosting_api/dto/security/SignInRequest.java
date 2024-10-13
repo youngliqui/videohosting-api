@@ -1,4 +1,4 @@
-package ru.clevertec.videohosting_api.dto;
+package ru.clevertec.videohosting_api.dto.security;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;

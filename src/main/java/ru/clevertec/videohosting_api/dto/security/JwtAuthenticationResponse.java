@@ -1,4 +1,4 @@
-package ru.clevertec.videohosting_api.dto;
+package ru.clevertec.videohosting_api.dto.security;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
