@@ -1,4 +1,4 @@
-package ru.clevertec.videohosting_api.service;
+package ru.clevertec.videohosting_api.service.category;
 
 import ru.clevertec.videohosting_api.model.Category;
 

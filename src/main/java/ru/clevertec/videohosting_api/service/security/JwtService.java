@@ -1,4 +1,4 @@
-package ru.clevertec.videohosting_api.service;
+package ru.clevertec.videohosting_api.service.security;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;

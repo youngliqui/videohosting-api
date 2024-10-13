@@ -18,7 +18,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
-import ru.clevertec.videohosting_api.service.UserService;
+import ru.clevertec.videohosting_api.service.user.authentication.UserAuthenticationService;
 
 import java.util.List;
 
@@ -27,12 +27,13 @@ import java.util.List;
 @EnableMethodSecurity
 public class SecurityConfiguration {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
-    private final UserService userService;
+    private final UserAuthenticationService userAuthenticationService;
 
     @Autowired
-    public SecurityConfiguration(JwtAuthenticationFilter jwtAuthenticationFilter, @Lazy UserService userService) {
+    public SecurityConfiguration(JwtAuthenticationFilter jwtAuthenticationFilter,
+                                 @Lazy UserAuthenticationService userAuthenticationService) {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
-        this.userService = userService;
+        this.userAuthenticationService = userAuthenticationService;
     }
 
     @Bean
@@ -66,7 +67,7 @@ public class SecurityConfiguration {
     @Bean
     public AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
-        authProvider.setUserDetailsService(userService.userDetailsService());
+        authProvider.setUserDetailsService(userAuthenticationService.userDetailsService());
         authProvider.setPasswordEncoder(passwordEncoder());
         return authProvider;
     }

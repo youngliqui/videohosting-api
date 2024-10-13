@@ -14,7 +14,7 @@ import ru.clevertec.videohosting_api.dto.SignInRequest;
 import ru.clevertec.videohosting_api.dto.SignUpRequest;
 import ru.clevertec.videohosting_api.exception.CustomValidationException;
 import ru.clevertec.videohosting_api.model.User;
-import ru.clevertec.videohosting_api.service.AuthenticationService;
+import ru.clevertec.videohosting_api.service.security.AuthenticationService;
 
 @RestController
 @RequestMapping("/auth")

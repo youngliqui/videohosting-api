@@ -19,18 +19,32 @@ import ru.clevertec.videohosting_api.dto.user.UserSubscriptionDTO;
 import ru.clevertec.videohosting_api.dto.user.UserUpdateDTO;
 import ru.clevertec.videohosting_api.exception.CustomValidationException;
 import ru.clevertec.videohosting_api.model.User;
-import ru.clevertec.videohosting_api.service.UserService;
+import ru.clevertec.videohosting_api.service.user.authentication.UserAuthenticationService;
+import ru.clevertec.videohosting_api.service.user.information.UserInformationService;
+import ru.clevertec.videohosting_api.service.user.management.UserManagementService;
+import ru.clevertec.videohosting_api.service.user.subscription.UserSubscriptionService;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/users")
 public class UserController {
-    private final UserService userService;
+    private final UserAuthenticationService userAuthenticationService;
+    private final UserInformationService userInformationService;
+    private final UserManagementService userManagementService;
+    private final UserSubscriptionService userSubscriptionService;
 
     @Autowired
-    public UserController(UserService userService) {
-        this.userService = userService;
+    public UserController(
+            UserAuthenticationService userAuthenticationService,
+            UserInformationService userInformationService,
+            UserManagementService userManagementService,
+            UserSubscriptionService userSubscriptionService
+    ) {
+        this.userAuthenticationService = userAuthenticationService;
+        this.userInformationService = userInformationService;
+        this.userManagementService = userManagementService;
+        this.userSubscriptionService = userSubscriptionService;
     }
 
     @GetMapping
@@ -40,7 +54,7 @@ public class UserController {
             @RequestParam(required = false, defaultValue = "10") int size
     ) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<UserInfoDTO> users = userService.getAllUsers(pageable);
+        Page<UserInfoDTO> users = userInformationService.getAllUsers(pageable);
 
         if (users.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
@@ -51,7 +65,7 @@ public class UserController {
 
     @GetMapping("/me")
     public ResponseEntity<User> authenticatedUser() {
-        User currentUser = userService.getCurrentUser();
+        User currentUser = userAuthenticationService.getCurrentUser();
 
         return ResponseEntity.ok(currentUser);
     }
@@ -59,7 +73,7 @@ public class UserController {
     @GetMapping("/{userId}")
     @PreAuthorize("#userId == authentication.principal.id or hasAnyAuthority('ADMIN')")
     public ResponseEntity<UserInfoDTO> getUserInfoById(@PathVariable("userId") Long userId) {
-        UserInfoDTO userInfo = userService.getUserInfoById(userId);
+        UserInfoDTO userInfo = userInformationService.getUserInfoById(userId);
 
         return ResponseEntity.ok(userInfo);
     }
@@ -69,7 +83,7 @@ public class UserController {
     public ResponseEntity<User> updateUser(@PathVariable Long userId,
                                            @RequestBody JsonPatch patch) {
         try {
-            User updatedUser = userService.applyPatchToUser(userId, patch);
+            User updatedUser = userManagementService.applyPatchToUser(userId, patch);
             return ResponseEntity.ok(updatedUser);
 
         } catch (JsonPatchException | JsonProcessingException e) {
@@ -87,7 +101,7 @@ public class UserController {
         if (bindingResult.hasErrors()) {
             throw new CustomValidationException(bindingResult.getAllErrors().toString());
         }
-        User updatedUser = userService.updateUser(userId, updateDTO);
+        User updatedUser = userManagementService.updateUser(userId, updateDTO);
 
         return ResponseEntity.ok(updatedUser);
     }
@@ -102,7 +116,7 @@ public class UserController {
         if (bindingResult.hasErrors()) {
             throw new CustomValidationException(bindingResult.getAllErrors().toString());
         }
-        User updatedUser = userService.changePassword(userId, changePasswordDTO);
+        User updatedUser = userAuthenticationService.changePassword(userId, changePasswordDTO);
 
         return ResponseEntity.ok(updatedUser);
     }
@@ -110,7 +124,7 @@ public class UserController {
     @GetMapping("/{userId}/subscription")
     @PreAuthorize("#userId == authentication.principal.id or hasAnyAuthority('ADMIN')")
     public ResponseEntity<List<UserSubscriptionDTO>> getUserSubscriptions(@PathVariable("userId") Long userId) {
-        List<UserSubscriptionDTO> subscriptions = userService.getUserSubscriptions(userId);
+        List<UserSubscriptionDTO> subscriptions = userSubscriptionService.getUserSubscriptions(userId);
 
         return ResponseEntity.ok(subscriptions);
     }

@@ -14,8 +14,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-import ru.clevertec.videohosting_api.service.JwtService;
-import ru.clevertec.videohosting_api.service.UserService;
+import ru.clevertec.videohosting_api.service.security.JwtService;
+import ru.clevertec.videohosting_api.service.user.authentication.UserAuthenticationService;
 
 import java.io.IOException;
 
@@ -25,12 +25,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     public static final String HEADER_NAME = "Authorization";
 
     private final JwtService jwtService;
-    private final UserService userService;
+    private final UserAuthenticationService userAuthenticationService;
 
     @Autowired
-    public JwtAuthenticationFilter(JwtService jwtService, @Lazy UserService userService) {
+    public JwtAuthenticationFilter(JwtService jwtService,
+                                   @Lazy UserAuthenticationService userAuthenticationService) {
         this.jwtService = jwtService;
-        this.userService = userService;
+        this.userAuthenticationService = userAuthenticationService;
     }
 
 
@@ -51,7 +52,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String username = jwtService.extractUsername(jwt);
 
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UserDetails userDetails = userService
+            UserDetails userDetails = userAuthenticationService
                     .userDetailsService()
                     .loadUserByUsername(username);
 

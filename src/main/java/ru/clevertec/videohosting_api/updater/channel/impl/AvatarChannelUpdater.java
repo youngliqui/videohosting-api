@@ -1,8 +1,9 @@
-package ru.clevertec.videohosting_api.updater.channel;
+package ru.clevertec.videohosting_api.updater.channel.impl;
 
 import ru.clevertec.videohosting_api.dto.channel.ChannelUpdateDTO;
 import ru.clevertec.videohosting_api.model.Channel;
-import ru.clevertec.videohosting_api.service.AvatarService;
+import ru.clevertec.videohosting_api.service.avatar.AvatarService;
+import ru.clevertec.videohosting_api.updater.channel.ChannelUpdater;
 
 public class AvatarChannelUpdater implements ChannelUpdater {
     private final AvatarService avatarService;

@@ -1,4 +1,4 @@
-package ru.clevertec.videohosting_api.service;
+package ru.clevertec.videohosting_api.service.security;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -11,24 +11,29 @@ import ru.clevertec.videohosting_api.dto.SignInRequest;
 import ru.clevertec.videohosting_api.dto.SignUpRequest;
 import ru.clevertec.videohosting_api.model.User;
 import ru.clevertec.videohosting_api.security.Role;
+import ru.clevertec.videohosting_api.service.user.authentication.UserAuthenticationService;
+import ru.clevertec.videohosting_api.service.user.management.UserManagementService;
 
 import java.util.LinkedHashSet;
 
 @Service
 public class AuthenticationService {
-    private final UserService userService;
+    private final UserAuthenticationService userAuthenticationService;
+    private final UserManagementService userManagementService;
     private final JwtService jwtService;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
 
     @Autowired
     public AuthenticationService(
-            UserService userService,
+            UserAuthenticationService userAuthenticationService,
+            UserManagementService userManagementService,
             JwtService jwtService,
             PasswordEncoder passwordEncoder,
             AuthenticationManager authenticationManager
     ) {
-        this.userService = userService;
+        this.userAuthenticationService = userAuthenticationService;
+        this.userManagementService = userManagementService;
         this.jwtService = jwtService;
         this.passwordEncoder = passwordEncoder;
         this.authenticationManager = authenticationManager;
@@ -44,7 +49,7 @@ public class AuthenticationService {
                 .subscriptions(new LinkedHashSet<>())
                 .build();
 
-        userService.create(user);
+        userManagementService.create(user);
 
         return user;
     }
@@ -55,7 +60,7 @@ public class AuthenticationService {
                 request.getPassword()
         ));
 
-        UserDetails user = userService
+        UserDetails user = userAuthenticationService
                 .userDetailsService()
                 .loadUserByUsername(request.getNickname());
 

@@ -18,20 +18,32 @@ import ru.clevertec.videohosting_api.dto.channel.ChannelInfoDTO;
 import ru.clevertec.videohosting_api.dto.channel.ChannelUpdateDTO;
 import ru.clevertec.videohosting_api.exception.CustomValidationException;
 import ru.clevertec.videohosting_api.model.User;
-import ru.clevertec.videohosting_api.service.ChannelService;
-import ru.clevertec.videohosting_api.service.UserService;
+import ru.clevertec.videohosting_api.service.channel.information.ChannelInformationService;
+import ru.clevertec.videohosting_api.service.channel.management.ChannelManagementService;
+import ru.clevertec.videohosting_api.service.channel.subscription.ChannelSubscriptionService;
+import ru.clevertec.videohosting_api.service.user.authentication.UserAuthenticationService;
 
 @RestController
 @RequestMapping("/channels")
 public class ChannelController {
-    private final ChannelService channelService;
-    private final UserService userService;
+    private final ChannelInformationService channelInformationService;
+    private final ChannelManagementService channelManagementService;
+    private final ChannelSubscriptionService channelSubscriptionService;
+    private final UserAuthenticationService userAuthenticationService;
 
     @Autowired
-    public ChannelController(ChannelService channelService, UserService userService) {
-        this.channelService = channelService;
-        this.userService = userService;
+    public ChannelController(
+            ChannelInformationService channelInformationService,
+            ChannelManagementService channelManagementService,
+            ChannelSubscriptionService channelSubscriptionService,
+            UserAuthenticationService userAuthenticationService
+    ) {
+        this.channelInformationService = channelInformationService;
+        this.channelManagementService = channelManagementService;
+        this.channelSubscriptionService = channelSubscriptionService;
+        this.userAuthenticationService = userAuthenticationService;
     }
+
 
     @GetMapping
     public ResponseEntity<Page<ChannelInfoDTO>> getAllChannels(
@@ -41,7 +53,7 @@ public class ChannelController {
             @RequestParam(required = false, defaultValue = "0") int page,
             @RequestParam(required = false, defaultValue = "10") int size
     ) {
-        Page<ChannelInfoDTO> channels = channelService.getAllChannels(name, language, category, page, size);
+        Page<ChannelInfoDTO> channels = channelInformationService.getAllChannels(name, language, category, page, size);
 
         if (channels.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
@@ -59,8 +71,9 @@ public class ChannelController {
             throw new CustomValidationException(bindingResult.getAllErrors().toString());
         }
 
-        User author = userService.getCurrentUser();
-        ChannelExtendedInfoDTO createdChannel = channelService.create(channelCreateDTO, author);
+        User author = userAuthenticationService.getCurrentUser();
+        ChannelExtendedInfoDTO createdChannel =
+                channelManagementService.create(channelCreateDTO, author);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(createdChannel);
     }
@@ -69,7 +82,7 @@ public class ChannelController {
     public ResponseEntity<ChannelExtendedInfoDTO> getChannelInfoById(
             @PathVariable("channelId") Long channelId
     ) {
-        ChannelExtendedInfoDTO channelInfo = channelService.getChannelInfoById(channelId);
+        ChannelExtendedInfoDTO channelInfo = channelInformationService.getChannelInfoById(channelId);
 
         return ResponseEntity.ok(channelInfo);
     }
@@ -79,23 +92,25 @@ public class ChannelController {
             @PathVariable("channelId") Long channelId,
             @RequestPart("avatar") MultipartFile avatar
     ) {
-        if (channelService.canUserChange(channelId, userService.getCurrentUser())) {
+        if (channelManagementService.canUserChange(channelId, userAuthenticationService.getCurrentUser())) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
-        ChannelExtendedInfoDTO updatedChannel = channelService.changeAvatar(channelId, avatar);
+        ChannelExtendedInfoDTO updatedChannel =
+                channelManagementService.changeAvatar(channelId, avatar);
         return ResponseEntity.ok(updatedChannel);
     }
 
     @PatchMapping("/{channelId}")
     public ResponseEntity<ChannelExtendedInfoDTO> updateChannel(@PathVariable("channelId") Long channelId,
                                                                 @RequestBody JsonPatch patch) {
-        if (channelService.canUserChange(channelId, userService.getCurrentUser())) {
+        if (channelManagementService.canUserChange(channelId, userAuthenticationService.getCurrentUser())) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
         try {
-            ChannelExtendedInfoDTO updatedChannel = channelService.applyPatchToChannel(channelId, patch);
+            ChannelExtendedInfoDTO updatedChannel =
+                    channelManagementService.applyPatchToChannel(channelId, patch);
             return ResponseEntity.ok(updatedChannel);
 
         } catch (JsonPatchException | JsonProcessingException e) {
@@ -112,7 +127,7 @@ public class ChannelController {
             @RequestPart(value = "categoryName", required = false) String categoryName,
             @RequestPart(value = "avatar", required = false) MultipartFile avatar
     ) {
-        if (channelService.canUserChange(channelId, userService.getCurrentUser())) {
+        if (channelManagementService.canUserChange(channelId, userAuthenticationService.getCurrentUser())) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
@@ -124,7 +139,8 @@ public class ChannelController {
                 .avatar(avatar)
                 .build();
 
-        ChannelExtendedInfoDTO channel = channelService.updateChannel(channelId, channelUpdateDTO);
+        ChannelExtendedInfoDTO channel =
+                channelManagementService.updateChannel(channelId, channelUpdateDTO);
 
         return ResponseEntity.ok(channel);
     }
@@ -132,7 +148,7 @@ public class ChannelController {
     @PostMapping("/{channelId}/subscribers/{userId}")
     public ResponseEntity<Void> subscribeToChannel(@PathVariable("channelId") Long channelId,
                                                    @PathVariable("userId") Long userId) {
-        channelService.subscribeToChannel(channelId, userId);
+        channelSubscriptionService.subscribeToChannel(channelId, userId);
 
         return ResponseEntity.ok().build();
     }
@@ -140,7 +156,7 @@ public class ChannelController {
     @DeleteMapping("/{channelId}/subscribers/{userId}")
     public ResponseEntity<Void> unsubscribeFromChannel(@PathVariable("channelId") Long channelId,
                                                        @PathVariable("userId") Long userId) {
-        channelService.unsubscribeFromChannel(channelId, userId);
+        channelSubscriptionService.unsubscribeFromChannel(channelId, userId);
 
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
