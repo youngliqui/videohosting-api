@@ -1,6 +1,6 @@
 package ru.clevertec.videohosting_api.service.security;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -9,6 +9,8 @@ import org.springframework.stereotype.Service;
 import ru.clevertec.videohosting_api.dto.security.JwtAuthenticationResponse;
 import ru.clevertec.videohosting_api.dto.security.SignInRequest;
 import ru.clevertec.videohosting_api.dto.security.SignUpRequest;
+import ru.clevertec.videohosting_api.dto.user.UserInfoDTO;
+import ru.clevertec.videohosting_api.mapper.UserMapper;
 import ru.clevertec.videohosting_api.model.User;
 import ru.clevertec.videohosting_api.model.security.Role;
 import ru.clevertec.videohosting_api.service.user.authentication.UserAuthenticationService;
@@ -17,6 +19,7 @@ import ru.clevertec.videohosting_api.service.user.management.UserManagementServi
 import java.util.LinkedHashSet;
 
 @Service
+@RequiredArgsConstructor
 public class AuthenticationService {
     private final UserAuthenticationService userAuthenticationService;
     private final UserManagementService userManagementService;
@@ -24,22 +27,7 @@ public class AuthenticationService {
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
 
-    @Autowired
-    public AuthenticationService(
-            UserAuthenticationService userAuthenticationService,
-            UserManagementService userManagementService,
-            JwtService jwtService,
-            PasswordEncoder passwordEncoder,
-            AuthenticationManager authenticationManager
-    ) {
-        this.userAuthenticationService = userAuthenticationService;
-        this.userManagementService = userManagementService;
-        this.jwtService = jwtService;
-        this.passwordEncoder = passwordEncoder;
-        this.authenticationManager = authenticationManager;
-    }
-
-    public User signUp(SignUpRequest request) {
+    public UserInfoDTO signUp(SignUpRequest request) {
         User user = User.builder()
                 .nickname(request.getNickname())
                 .email(request.getEmail())
@@ -51,7 +39,7 @@ public class AuthenticationService {
 
         userManagementService.create(user);
 
-        return user;
+        return UserMapper.INSTANCE.userToUserInfoDTO(user);
     }
 
     public JwtAuthenticationResponse signIn(SignInRequest request) {

@@ -1,14 +1,14 @@
 package ru.clevertec.videohosting_api.dto.channel;
 
 import jakarta.validation.constraints.Size;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import org.springframework.web.multipart.MultipartFile;
 
 @Builder
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class ChannelUpdateDTO {
     @Size(min = 3, max = 100, message = "The name must be between 3 and 100 characters long")
     private String name;

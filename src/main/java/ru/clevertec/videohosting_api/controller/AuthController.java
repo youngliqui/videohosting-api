@@ -1,52 +1,29 @@
 package ru.clevertec.videohosting_api.controller;
 
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import ru.clevertec.videohosting_api.dto.security.JwtAuthenticationResponse;
 import ru.clevertec.videohosting_api.dto.security.SignInRequest;
 import ru.clevertec.videohosting_api.dto.security.SignUpRequest;
-import ru.clevertec.videohosting_api.exception.validation.CustomValidationException;
-import ru.clevertec.videohosting_api.model.User;
+import ru.clevertec.videohosting_api.dto.user.UserInfoDTO;
 import ru.clevertec.videohosting_api.service.security.AuthenticationService;
 
 @RestController
 @RequestMapping("/auth")
+@RequiredArgsConstructor
 public class AuthController {
     private final AuthenticationService authenticationService;
 
-    @Autowired
-    public AuthController(AuthenticationService authenticationService) {
-        this.authenticationService = authenticationService;
-    }
-
     @PostMapping("/sign-up")
-    public ResponseEntity<User> signUp(@RequestBody @Valid SignUpRequest request,
-                                       BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            throw new CustomValidationException(bindingResult.getAllErrors().toString());
-        }
-
-        User createdUser = authenticationService.signUp(request);
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdUser);
+    @ResponseStatus(HttpStatus.CREATED)
+    public UserInfoDTO signUp(@RequestBody @Valid SignUpRequest request) {
+        return authenticationService.signUp(request);
     }
 
     @PostMapping("/sign-in")
-    public ResponseEntity<JwtAuthenticationResponse> signIn(@RequestBody @Valid SignInRequest request,
-                                                            BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            throw new CustomValidationException(bindingResult.getAllErrors().toString());
-        }
-
-        JwtAuthenticationResponse response = authenticationService.signIn(request);
-
-        return ResponseEntity.ok(response);
+    public JwtAuthenticationResponse signIn(@RequestBody @Valid SignInRequest request) {
+        return authenticationService.signIn(request);
     }
 }

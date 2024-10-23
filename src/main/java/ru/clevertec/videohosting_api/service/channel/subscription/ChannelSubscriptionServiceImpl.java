@@ -1,6 +1,6 @@
 package ru.clevertec.videohosting_api.service.channel.subscription;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.clevertec.videohosting_api.exception.channel.ChannelNotFoundException;
@@ -12,18 +12,10 @@ import ru.clevertec.videohosting_api.repository.ChannelRepository;
 import ru.clevertec.videohosting_api.service.user.authentication.UserAuthenticationService;
 
 @Service
+@RequiredArgsConstructor
 public class ChannelSubscriptionServiceImpl implements ChannelSubscriptionService {
     private final ChannelRepository channelRepository;
     private final UserAuthenticationService userAuthenticationService;
-
-    @Autowired
-    public ChannelSubscriptionServiceImpl(
-            ChannelRepository channelRepository,
-            UserAuthenticationService userAuthenticationService
-    ) {
-        this.channelRepository = channelRepository;
-        this.userAuthenticationService = userAuthenticationService;
-    }
 
     @Override
     @Transactional

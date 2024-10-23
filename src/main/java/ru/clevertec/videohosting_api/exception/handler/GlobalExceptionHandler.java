@@ -10,6 +10,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AccountStatusException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import ru.clevertec.videohosting_api.exception.AlreadyExistsException;
@@ -18,18 +19,24 @@ import ru.clevertec.videohosting_api.exception.avatar.AvatarEncodeException;
 import ru.clevertec.videohosting_api.exception.category.CategoryNotFoundException;
 import ru.clevertec.videohosting_api.exception.channel.ChannelNotFoundException;
 import ru.clevertec.videohosting_api.exception.channel.SubscribedAlreadyException;
+import ru.clevertec.videohosting_api.exception.response.ErrorResponse;
 import ru.clevertec.videohosting_api.exception.user.*;
-import ru.clevertec.videohosting_api.exception.validation.CustomValidationException;
 
 import java.security.SignatureException;
 
 @Slf4j
 @ControllerAdvice
 public class GlobalExceptionHandler {
-    @ExceptionHandler(CustomValidationException.class)
-    public ResponseEntity<String> handleCustomValidation(CustomValidationException ex) {
-        log.warn("Validation error: {}", ex.getMessage());
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ErrorResponse> handleValidationException(MethodArgumentNotValidException ex) {
+        StringBuilder errors = new StringBuilder();
+        ex.getBindingResult().getFieldErrors().forEach(error ->
+                errors.append(error.getField()).append(": ").append(error.getDefaultMessage()).append("; ")
+        );
+
+        ErrorResponse errorResponse = new ErrorResponse(errors.toString());
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(AvatarEncodeException.class)

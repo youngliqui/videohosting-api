@@ -1,6 +1,6 @@
 package ru.clevertec.videohosting_api.service.channel.information;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -15,18 +15,10 @@ import ru.clevertec.videohosting_api.model.ChannelSpecification;
 import ru.clevertec.videohosting_api.repository.ChannelRepository;
 
 @Service
+@RequiredArgsConstructor
 public class ChannelInformationServiceImpl implements ChannelInformationService {
     private final ChannelRepository channelRepository;
     private final ChannelMapper channelMapper;
-
-    @Autowired
-    public ChannelInformationServiceImpl(
-            ChannelRepository channelRepository,
-            ChannelMapper channelMapper
-    ) {
-        this.channelRepository = channelRepository;
-        this.channelMapper = channelMapper;
-    }
 
     @Override
     public Page<ChannelInfoDTO> getAllChannels(String name, String language, String categoryName, int page, int size) {
