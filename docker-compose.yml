@@ -1,0 +1,11 @@
+services:
+  videohosting-db:
+    container_name: videohosting-db
+    image: postgres
+    hostname: videohosting-db
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=videohosting_db
+    ports:
+      - 5444:5432
